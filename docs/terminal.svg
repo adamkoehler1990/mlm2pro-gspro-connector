@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="520" viewBox="0 0 760 520" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">
+  <defs>
+    <filter id="s" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="760" height="520" fill="#eef1f5"/>
+  <g filter="url(#s)">
+    <rect x="24" y="22" width="712" height="476" rx="8" fill="#1e2127"/>
+    <rect x="24" y="22" width="712" height="30" rx="8" fill="#2b2f37"/>
+    <rect x="24" y="40" width="712" height="12" fill="#2b2f37"/>
+    <circle cx="44" cy="37" r="6" fill="#ff5f56"/>
+    <circle cx="64" cy="37" r="6" fill="#ffbd2e"/>
+    <circle cx="84" cy="37" r="6" fill="#27c93f"/>
+    <text x="380" y="41" font-size="12" fill="#9aa0ab" text-anchor="middle">mlm2pro-gspro-connector  &#8212;  example session</text>
+  </g>
+  <g font-size="12.5">
+    <text x="42" y="78"><tspan fill="#5ec4ff">[service]</tspan><tspan fill="#cdd3dc"> resilient bridge started (retry every 8s)</tspan></text>
+    <text x="42" y="98"><tspan fill="#9d8bff">[gspro]</tspan><tspan fill="#cdd3dc"> connected to 127.0.0.1:921</tspan></text>
+    <text x="42" y="118"><tspan fill="#6fd08c">[ble]</tspan><tspan fill="#cdd3dc"> scanning for a device named 'MLM2-...'</tspan></text>
+    <text x="42" y="138"><tspan fill="#6fd08c">[ble]</tspan><tspan fill="#cdd3dc"> found </tspan><tspan fill="#ffd479">MLM2-0A14C7</tspan><tspan fill="#cdd3dc">  [AA:BB:CC:DD:EE:FF]</tspan></text>
+    <text x="42" y="158"><tspan fill="#6fd08c">[ble]</tspan><tspan fill="#cdd3dc"> connected  &#183;  notifications subscribed</tspan></text>
+    <text x="42" y="178"><tspan fill="#6fd08c">[ble]</tspan><tspan fill="#8a92a0"> -&gt; AUTH: 010000000001 1A1801 26F99A3C...</tspan></text>
+    <text x="42" y="198"><tspan fill="#ffb454">[auth]</tspan><tspan fill="#cdd3dc"> device userId = 1844213</tspan></text>
+    <text x="42" y="218"><tspan fill="#5ec4ff">[api]</tspan><tspan fill="#cdd3dc"> GET https://mlm.rapsodo.com/api/simulator/user/1844213  (Secret header set)</tspan></text>
+    <text x="42" y="238"><tspan fill="#ffb454">[auth]</tspan><tspan fill="#cdd3dc"> token acquired, expires 2026-11-18 09:14:03</tspan></text>
+    <text x="42" y="258"><tspan fill="#ffb454">[auth]</tspan><tspan fill="#cdd3dc"> success, sending initial params</tspan></text>
+    <text x="42" y="278"><tspan fill="#6fd08c">[ble]</tspan><tspan fill="#cdd3dc"> device </tspan><tspan fill="#27c93f" font-weight="bold">ARMED</tspan><tspan fill="#cdd3dc"> &#8212; ready to read shots</tspan></text>
+    <text x="42" y="298"><tspan fill="#cdd3dc">Bridge running.</tspan></text>
+    <text x="42" y="326"><tspan fill="#8a92a0">&#8212;&#8212;&#8212;  you swing  &#8212;&#8212;&#8212;</tspan></text>
+    <text x="42" y="350"><tspan fill="#ff8fb3">[evt]</tspan><tspan fill="#cdd3dc"> SHOT READ</tspan></text>
+    <text x="42" y="370"><tspan fill="#ff8fb3">[evt]</tspan><tspan fill="#cdd3dc"> PROCESSING SHOT</tspan></text>
+    <text x="42" y="390"><tspan fill="#ffd479">[shot]</tspan><tspan fill="#8a92a0"> measurement decrypted: 2E05A80A...</tspan></text>
+    <text x="42" y="414"><tspan fill="#9d8bff">[gspro]</tspan><tspan fill="#cdd3dc"> -&gt; shot #1: </tspan><tspan fill="#e6c07b">{speed: 148.6, hla: -2.1, vla: 14.3, back_spin: 6420, club_speed: 102.4}</tspan></text>
+    <text x="42" y="434"><tspan fill="#9d8bff">[gspro]</tspan><tspan fill="#cdd3dc"> &lt;- 200 </tspan><tspan fill="#27c93f">Shot received successfully</tspan></text>
+    <text x="42" y="462"><tspan fill="#ff8fb3">[evt]</tspan><tspan fill="#cdd3dc"> READY   </tspan><tspan fill="#8a92a0">(waiting for the next shot...)</tspan></text>
+    <rect x="300" y="452" width="8" height="15" fill="#cdd3dc"/>
+  </g>
+</svg>
