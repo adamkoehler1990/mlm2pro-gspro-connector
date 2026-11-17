@@ -30,11 +30,13 @@ port 921). No Rapsodo phone app needed during play.
 Protocol ported from the open-source springbok/MLM2PRO-GSPro-Connector and
 Duwaynef/MLM2PRO-BT-APP projects, verified against the Rapsodo MLM2PRO APK.
 
-ONE-TIME PREREQUISITE (unavoidable):
-  In the Rapsodo phone app: Play -> Third Party -> authorize a third-party slot
-  (e.g. "Awesome Golf"). Requires a Rapsodo third-party subscription. This binds
-  your account to the device so it will issue session tokens. Re-authorize only
-  if that slot lapses. After this, you do not need the phone app day to day.
+DAILY PREREQUISITE (enforced by Rapsodo, not removable):
+  In the Rapsodo phone app: Play -> 3rd Party Apps -> GSPro -> Authenticate Now.
+  Requires a Rapsodo third-party subscription. Rapsodo expires this authorization
+  every 24 hours, so you re-do it roughly once a day. No connector can bypass it
+  (it is enforced on the account/device, upstream of Bluetooth). This tool needs
+  no phone app WHILE you play, and if the authorization lapses it pops an alert
+  telling you exactly what to tap - see notify()/REAUTH_MESSAGE below.
 
 DEPENDENCIES:
   pip install bleak cryptography
@@ -59,6 +61,7 @@ import math
 import os
 import struct
 import sys
+import threading
 import urllib.request
 from datetime import datetime, timezone
 
@@ -170,6 +173,39 @@ def build_initial_params(token: int) -> bytes:
 
 def hx(b: bytes) -> str:
     return b.hex().upper()
+
+
+def notify(title: str, message: str) -> None:
+    """Pop a non-blocking Windows alert and log it loudly.
+
+    Used when the device reports the Rapsodo third-party authorization has
+    lapsed. Rapsodo expires that authorization every 24 hours; it must be
+    renewed in the Rapsodo phone app (Play > 3rd Party Apps > GSPro >
+    Authenticate Now). No connector can bypass this - so when it happens we
+    make it obvious instead of failing silently."""
+    print("!" * 60)
+    print(f"[ACTION NEEDED] {title}: {message}")
+    print("!" * 60)
+    if sys.platform != "win32":
+        return
+
+    def _box():
+        try:
+            import ctypes
+            # MB_OK | MB_ICONWARNING | MB_SYSTEMMODAL | MB_SETFOREGROUND
+            ctypes.windll.user32.MessageBoxW(0, message, title, 0x30 | 0x1000 | 0x10000)
+        except Exception:
+            pass
+
+    threading.Thread(target=_box, daemon=True).start()
+
+
+REAUTH_MESSAGE = (
+    "Rapsodo third-party authorization has expired (Rapsodo enforces this "
+    "every 24 hours).\n\nOpen the Rapsodo phone app and tap:\n"
+    "    Play  >  3rd Party Apps  >  GSPro  >  Authenticate Now\n\n"
+    "Then the connector will reconnect automatically."
+)
 
 
 # --------------------------------------------------------------------------- #
@@ -457,8 +493,8 @@ class MLM2PROBridge:
             if data[0] == 2:  # needs initial params
                 if data[1] != 0 or len(data) < 4:
                     if data[1] == 1:
-                        print("[auth] FAILED: third-party authorization expired. "
-                              "Re-authorize in the Rapsodo app.")
+                        print("[auth] FAILED: third-party authorization expired.")
+                        notify("MLM2PRO: re-authorize needed", REAUTH_MESSAGE)
                     else:
                         print(f"[auth] FAILED: code {data[1]}")
                     return
@@ -519,20 +555,24 @@ class MLM2PROBridge:
 
 # --------------------------------------------------------------------------- #
 
-async def find_device(address: str | None):
+async def find_device(address: str | None, announce: bool = True):
+    """Return the monitor's address, or None. `announce` controls logging so the
+    unattended service loop doesn't fill its log with one scan dump every cycle
+    (which used to rotate away all real session history)."""
     if address:
-        print(f"[ble] connecting to {address}")
+        if announce:
+            print(f"[ble] connecting to {address}")
         return address
-    print(f"[ble] scanning for a device named '{DEVICE_NAME_PREFIX}...' (10s)")
+    if announce:
+        print(f"[ble] scanning for a device named '{DEVICE_NAME_PREFIX}...'")
     devices = await BleakScanner.discover(timeout=10.0)
     for d in devices:
         if d.name and d.name.startswith(DEVICE_NAME_PREFIX):
             print(f"[ble] found {d.name}  [{d.address}]")
             return d.address
-    print("[ble] no MLM2PRO found. Pair it in Windows first, or pass --address.")
-    for d in devices:
-        if d.name:
-            print(f"        seen: {d.name}  [{d.address}]")
+    if announce:
+        print("[ble] no MLM2PRO found (monitor off / out of range). "
+              "Will keep retrying quietly; power it on and it connects automatically.")
     return None
 
 
@@ -570,6 +610,7 @@ async def service_loop(args):
     """
     print(f"[service] resilient bridge started (retry every {args.retry}s)")
     gspro = GSProClient(args.gspro_host, args.gspro_port)
+    scan_announced = False   # log "scanning"/"not found" once per idle stretch, not every cycle
     try:
         while True:
             # 1) Ensure GSPro is connected (cheap socket; no BLE scan if it's down).
@@ -582,10 +623,12 @@ async def service_loop(args):
 
             # 2) GSPro up: find and run the monitor until it (or GSPro) drops.
             try:
-                address = await find_device(args.address)
+                address = await find_device(args.address, announce=not scan_announced)
                 if not address:
+                    scan_announced = True
                     await asyncio.sleep(args.retry)
                     continue
+                scan_announced = False
                 print("[ble] connecting...")
                 async with BleakClient(address) as client:
                     if not client.is_connected:
