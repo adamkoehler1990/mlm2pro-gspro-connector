@@ -14,4 +14,10 @@ venv/
 
 # PyInstaller
 build/
-j\İÂŠ‹œÜXÂ‚ˆÈÔÂ•[XœË™‚™\ÚİÜš[šB‹‘×ÔİÜ™B
+dist/
+*.spec
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store

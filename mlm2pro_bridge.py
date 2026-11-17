@@ -173,6 +173,32 @@ def hx(b: bytes) -> str:
 
 
 # --------------------------------------------------------------------------- #
+# Config file (config.json next to the program) - edited by configure.py
+# --------------------------------------------------------------------------- #
+
+def _program_dir() -> str:
+    # Works for both the .py and the PyInstaller one-file .exe.
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(os.path.abspath(sys.executable))
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def load_config() -> dict:
+    """Read config.json (club, address, gspro_host, gspro_port, retry) if present.
+    Returns {} when missing or unreadable. CLI flags always override these."""
+    path = os.path.join(_program_dir(), "config.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except FileNotFoundError:
+        return {}
+    except Exception as ex:
+        print(f"[config] could not read config.json: {ex}")
+        return {}
+
+
+# --------------------------------------------------------------------------- #
 # Rapsodo web API
 # --------------------------------------------------------------------------- #
 
@@ -423,7 +449,7 @@ class MLM2PROBridge:
         if ball:
             asyncio.run_coroutine_threadsafe(self.gspro.send_shot(ball), self.loop)
 
-    # --- write-response state machine ---------------------------------------- #
+    # --- write-response state machine ----------------------------------------- #
     async def _handle_write_response(self, data: bytes):
         if len(data) < 2:
             return
@@ -620,14 +646,17 @@ class _LogStream:
 
 
 async def main():
+    cfg = load_config()
     ap = argparse.ArgumentParser(description="MLM2PRO -> GSPro bridge")
-    ap.add_argument("--address", help="BLE MAC address of the MLM2PRO")
-    ap.add_argument("--club", default="7i", help="current club (PT=putter, ignored)")
-    ap.add_argument("--gspro-host", default=GSPRO_HOST)
-    ap.add_argument("--gspro-port", type=int, default=GSPRO_PORT)
+    ap.add_argument("--address", default=cfg.get("address"),
+                    help="BLE MAC address of the MLM2PRO")
+    ap.add_argument("--club", default=cfg.get("club", "7i"),
+                    help="current club (PT=putter, ignored)")
+    ap.add_argument("--gspro-host", default=cfg.get("gspro_host", GSPRO_HOST))
+    ap.add_argument("--gspro-port", type=int, default=cfg.get("gspro_port", GSPRO_PORT))
     ap.add_argument("--service", action="store_true",
                     help="resilient unattended mode (retry/reconnect forever)")
-    ap.add_argument("--retry", type=int, default=8,
+    ap.add_argument("--retry", type=int, default=cfg.get("retry", 8),
                     help="seconds between retries in --service mode")
     ap.add_argument("--log", default=None, help="log file path (--service mode)")
     args = ap.parse_args()
