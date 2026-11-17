@@ -449,7 +449,7 @@ class MLM2PROBridge:
         if ball:
             asyncio.run_coroutine_threadsafe(self.gspro.send_shot(ball), self.loop)
 
-    # --- write-response state machine ----------------------------------------- #
+    # --- write-response state machine ---------------------------------------- #
     async def _handle_write_response(self, data: bytes):
         if len(data) < 2:
             return
