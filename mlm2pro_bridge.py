@@ -573,45 +573,82 @@ async def service_loop(args):
                     print("[ble] link lost (monitor slept/out of range, or GSPro closed)")
             except asyncio.CancelledError:
                 raise
-            except Exception as)^‚ˆš[
-ˆ–ÜÙ\šXÙWH[Ûš]ÜˆÙ\ÜÚ[Ûˆ[™YˆÙ^HŠBˆ]ØZ]\Þ[˜Ú[ËœÛY\
-\™ÜËœ™]žJBˆš[˜[N‚ˆ]ØZ]ÜÜ›Ë˜ÛÜÙJ
-B‚‚˜Û\ÜÈÓÙÔÝ™X[N‚ˆˆˆ“Z[š[X[›Ý][™Ë[Y\Ý[\YÙÈÝ™X[H\ÙY[ˆK\Ù\šXÙH[ÙHÛÈBˆY[ˆ›ØÙ\ÜÈX]™\ÈH™XYX›H˜Z[Ú]Ý]^˜H\[™[˜ÚY\Ëˆˆˆ‚ˆYˆ×Ú[š]×ÊÙ[‹]ˆÝ‹X^Øž]\Îˆ[HWÌÌ
-N‚ˆÙ[‹œ]Ù[‹›X^H]X^Øž]\ÂˆÙ[‹—Ø]Û[™WÜÝ\HYBˆÙ[‹™ˆHÜ[Š]˜H‹[˜ÛÙ[™ÏH]‹N‹Y™™\š[™ÏLJB‚ˆYˆÜš]JÙ[‹ÎˆÝŠN‚ˆYˆ›ÝÎ‚ˆ™]\›ˆˆ›Üˆ\[ˆËœÜ][™\ÊÙY\[™ÏUYJN‚ˆYˆÙ[‹—Ø]Û[™WÜÝ\[™\œÝš\
+            except Exception as ex:
+                print(f"[service] monitor session ended: {ex}")
+            await asyncio.sleep(args.retry)
+    finally:
+        await gspro.close()
 
-N‚ˆÙ[‹™‹Üš]JˆžÙ]][YK››ÝÊ
-N‰VKI[KIY	R‰SN‰TßHÜ\HŠBˆ[ÙN‚ˆÙ[‹™‹Üš]J\
-BˆÙ[‹—Ø]Û[™WÜÝ\H\™[™ÝÚ]
-—ˆŠBˆžN‚ˆYˆÙ[‹™‹[
 
-HˆÙ[‹›X^‚ˆÙ[‹™‹˜ÛÜÙJ
-Bˆ˜ZÈHÙ[‹œ]
-È‹ŒH‚ˆžN‚ˆYˆÜËœ]™^\ÝÊ˜ZÊN‚ˆÜËœ™[[Ý™J˜ZÊBˆÜËœ™\XÙJÙ[‹œ]˜ZÊBˆ^Ù\ÔÑ\œ›ÜŽ‚ˆ\ÜÂˆÙ[‹™ˆHÜ[ŠÙ[‹œ]˜H‹[˜ÛÙ[™ÏH]‹N‹Y™™\š[™ÏLJBˆ^Ù\^Ù\[ÛŽ‚ˆ\ÜÂˆ™]\›ˆ[ŠÊB‚ˆYˆ›\Ú
-Ù[ŠN‚ˆžN‚ˆÙ[‹™‹™›\Ú
+class _LogStream:
+    """Minimal rotating, timestamped log stream used in --service mode so the
+    hidden process leaves a readable trail without extra dependencies."""
+    def __init__(self, path: str, max_bytes: int = 1_000_000):
+        self.path, self.max = path, max_bytes
+        self._at_line_start = True
+        self.f = open(path, "a", encoding="utf-8", buffering=1)
 
-Bˆ^Ù\^Ù\[ÛŽ‚ˆ\ÜÂ‚‚˜\Þ[˜ÈYˆXZ[Š
-N‚ˆ\H\™Ü\œÙK\™Ý[Y[\œÙ\Š\ØÜš\[ÛH“SL”“ÈOˆÔÔ›ÈœšYÙHŠBˆ\˜YØ\™Ý[Y[
-‹KXY™\ÜÈ‹[H“HPPÈY™\ÜÈÙˆHSL”“ÈŠBˆ\˜YØ\™Ý[Y[
-‹KXÛXˆ‹Y˜][HÚH‹[H˜Ý\œ™[ÛXˆ
-\]\‹YÛ›Ü™Y
-HŠBˆ\˜YØ\™Ý[Y[
-‹KYÜÜ›ËZÜÝ‹Y˜][QÔÔ“×ÒÔÕ
-Bˆ\˜YØ\™Ý[Y[
-‹KYÜÜ›Ë\Ü‹\OZ[Y˜][QÔÔ“×ÔÔ•
-Bˆ\˜YØ\™Ý[Y[
-‹K\Ù\šXÙH‹XÝ[ÛHœÝÜ™WÝYH‹ˆ[Hœ™\Ú[Y[[˜][™Y[ÙH
-™]žKÜ™XÛÛ›™XÝ›Ü™]™\ŠHŠBˆ\˜YØ\™Ý[Y[
-‹K\™]žH‹\OZ[Y˜][Nˆ[HœÙXÛÛ™È™]ÙY[ˆ™]šY\È[ˆK\Ù\šXÙH[ÙHŠBˆ\˜YØ\™Ý[Y[
-‹K[ÙÈ‹Y˜][S›Û™K[H›ÙÈš[H]
-K\Ù\šXÙH[ÙJHŠBˆ\™ÜÈH\œ\œÙWØ\™ÜÊ
-B‚ˆYˆ\™ÜËœÙ\šXÙN‚ˆÙ×Ü]H\™ÜË›ÙÈÜˆÜËœ]š›Ú[ŠˆÜËœ]™\›˜[YJÜËœ]˜XœÜ]
-×Ùš[W×ÊJK›[Lœ›×ØœšYÙK›ÙÈŠBˆÝ™X[HHÓÙÔÝ™X[JÙ×Ü]
-BˆÞ\ËœÝÝ]HÞ\ËœÝ\œˆHÝ™X[Bˆš[
-Hˆ
-ˆŒ
-Bˆš[
-–ÜÙ\šXÙWH][˜ÚYŠBˆ]ØZ]Ù\šXÙWÛÛÜ
-\™ÜÊBˆ[ÙN‚ˆžN‚ˆ]ØZ][—ÜÙ\ÜÚ[ÛŠ\™ÜÊBˆ^Ù\^Ù\[Ûˆ\È^‚ˆš[
-ˆ–Ù\œ›Ü—HÙ^HŠB‚‚šYˆ×Û˜[YW×ÈOH—×ÛXZ[—×ÈŽ‚ˆžN‚ˆ\Þ[˜Ú[Ëœ[ŠXZ[Š
-JBˆ^Ù\Ù^X›Ø\™[\œ\‚ˆš[
-—–Ù^]HÝÜYŠB
+    def write(self, s: str):
+        if not s:
+            return 0
+        for part in s.splitlines(keepends=True):
+            if self._at_line_start and part.strip():
+                self.f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} {part}")
+            else:
+                self.f.write(part)
+            self._at_line_start = part.endswith("\n")
+        try:
+            if self.f.tell() > self.max:
+                self.f.close()
+                bak = self.path + ".1"
+                try:
+                    if os.path.exists(bak):
+                        os.remove(bak)
+                    os.replace(self.path, bak)
+                except OSError:
+                    pass
+                self.f = open(self.path, "a", encoding="utf-8", buffering=1)
+        except Exception:
+            pass
+        return len(s)
+
+    def flush(self):
+        try:
+            self.f.flush()
+        except Exception:
+            pass
+
+
+async def main():
+    ap = argparse.ArgumentParser(description="MLM2PRO -> GSPro bridge")
+    ap.add_argument("--address", help="BLE MAC address of the MLM2PRO")
+    ap.add_argument("--club", default="7i", help="current club (PT=putter, ignored)")
+    ap.add_argument("--gspro-host", default=GSPRO_HOST)
+    ap.add_argument("--gspro-port", type=int, default=GSPRO_PORT)
+    ap.add_argument("--service", action="store_true",
+                    help="resilient unattended mode (retry/reconnect forever)")
+    ap.add_argument("--retry", type=int, default=8,
+                    help="seconds between retries in --service mode")
+    ap.add_argument("--log", default=None, help="log file path (--service mode)")
+    args = ap.parse_args()
+
+    if args.service:
+        log_path = args.log or os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "mlm2pro_bridge.log")
+        stream = _LogStream(log_path)
+        sys.stdout = sys.stderr = stream
+        print("=" * 60)
+        print("[service] launched")
+        await service_loop(args)
+    else:
+        try:
+            await run_session(args)
+        except Exception as ex:
+            print(f"[error] {ex}")
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n[exit] stopped")
