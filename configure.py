@@ -199,4 +199,26 @@ class App:
                 return None
 
             found = asyncio.run(go())
-        except Excepv–öâ2Wƒ ¢6VÆbç&ö÷BægFW"ƒÂÆÖ&F¢ÖW76vV&÷‚ç6†÷vW'&÷"€¢%66âf–ÆVB"Âb'¶W‡ÕÆåÆä–ç7FÆÂFW2f—'7C¢—–ç7FÆÂ&ÆV²"’¢6VÆbç&ö÷BægFW"ƒÂÆÖ&F¢6VÆbå÷66åöFöæR†f÷VæB’ ¢FVb÷66åöFöæR‡6VÆbÂFG&W72“ ¢6VÆbç66åö'Fâæ6öæf–wW&R‡7FFSÒ&æ÷&ÖÂ"ÂFW‡CÒ%66ââââ"¢–bFG&W73 ¢6VÆbæFG&W72æFVÆWFRƒÂ&VæB"¢6VÆbæFG&W72æ–ç6W'BƒÂFG&W72¢6VÆbç7FGW2æ6öæf–wW&R‡FW‡CÖb$f÷VæBÖöæ—F÷#¢¶FG&W77Ò"¢VÇ6S ¢6VÆbç7FGW2æ6öæf–wW&R‡FW‡CÒ$æòÔÄÓ"ÒFWf–6Rf÷VæBâ—"—B–âv–æF÷w2&ÇVWFö÷F‚f—'7Bâ"  ¦FVbÖ–â‚“ ¢&ö÷BÒF²åF²‚¢‡&ö÷B¢&ö÷BæÖ–æÆö÷‚  ¦–bõöæÖUõòÓÒ%õöÖ–åõò# ¢Ö–â‚ 
+        except Exception as ex:
+            self.root.after(0, lambda: messagebox.showerror(
+                "Scan failed", f"{ex}\n\nInstall deps first: pip install bleak"))
+        self.root.after(0, lambda: self._scan_done(found))
+
+    def _scan_done(self, address):
+        self.scan_btn.configure(state="normal", text="Scan...")
+        if address:
+            self.address.delete(0, "end")
+            self.address.insert(0, address)
+            self.status.configure(text=f"Found monitor: {address}")
+        else:
+            self.status.configure(text="No MLM2- device found. Pair it in Windows Bluetooth first.")
+
+
+def main():
+    root = tk.Tk()
+    App(root)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
