@@ -114,17 +114,39 @@ Command-line flags override `config.json` when both are present.
 powershell -ExecutionPolicy Bypass -File scripts\install_autostart.ps1
 ```
 
-L›ÜÈHY[‹[][˜ÚÚÜİ][ˆ[İ\ˆ\‹]\Ù\ˆ
-Š”İ\\›Û\ŠŠˆ
-›ÈYZ[ŠKˆ]œ™Y™\œÈHZ[™^XYˆ™\Ù[İ\Ú\ÙH\Ù\È]Û‹ˆY]	ÛX˜[ˆBœØÜš\ÈÚ[™ÙH[İ\ˆY˜][ÛX‹ˆ™[[İ™HÚ]ØÜš\×[š[œİ[Ø]]Üİ\œÌX‚‚ŠŠÚXÚÈ]	ÜÈ[]™NŠŠˆÜ[ˆ[Lœ›×ØœšYÙK›ÙØ‚‚ˆÈÈİÈ]ÛÜšÜÂ‚ŒKˆÛÛ›™XİÈÈHSL”“Èİ™\ˆ“K‚Œ‹ˆ[œÈH]][™ÚZÙH8¡¤ˆH]šXÙH™]\›œÈH\Ù\ˆY‚ŒËˆ™]Ú\ÈHÙ\ÜÚ[ÛˆÚÙ[ˆœ›ÛH˜\ÛÙÉÜÈÙXˆTH›Üˆ]Y‚ˆÜš]\ÈH[˜Ü\Y[š]X[\˜[Y]\œÈ
-[˜ÛˆHÚÙ[ŠH[™\›\ÈH]šXÙK‚KˆXÛÙ\ÈXXÚÚİ
-QTËLM‹PĞÊH[™Ù[™È]ÈÔÔ›ÈÜ[ÛÛ›™Xİ‚‚ˆÈÈ›İX›\ÚÛİ[™Â‚‹H
-Š‘ÔÔ›ÈÚİÜÈ››İ™XYHˆ]HÛÛ›™XİÜˆ\È[›š[™ÊŠˆ8 %ÔÔ›ÉÜÈ[™XØ]Ü‚ˆ\XØ[HÛX\œÈÚ[ˆ]™XÙZ]™\ÈHš\œİ™X[ÚİˆYˆHÙÈÚİÜÂˆŒˆÔÔ›È™XYXH\[[™H\ÈÛÛ›™XİYÈ\İ]H˜[‚‹H
-ŠÛÛ›™XİÜˆÛÛ›™XİÈ]›È˜[›Y\ÈÈ›È™\ÜÛœÙHÛˆLŒJŠˆ8 %ÔÔ›ÈÛÛ›™Xİ\ÂˆÚ[™ÛKXÛÛ›™Xİ[Ûˆ[™Ù\Û‰İÛX[ˆ\ÛÛØÚÙ]Ëˆ]Z][™™[][˜ÚÔÔ›ÈÂˆÛX\ˆÜLŒK[ˆİ\HÛÛ›™XİÜˆ
-Š›Û˜ÙJŠˆ[™X]™H][›š[™ËˆÛ‰İˆ[ˆÛÈÛY[ÈYØZ[œİLŒH]HØ[YH[YK‚‹H
-Š”ÚİZ\Ü™XYÊŠˆ8 %Œ™\›È]\Èœ›ÛHH]šXÙHHHZ\Ü™XYÈ]	ÜÈYÛ›Ü™Y‚‚ˆÈÈÛÛšX][™Â‚’\ÜİY\È[™œÈÙ[ÛÛYKˆ™XØ]\ÙH\ÈZ[ÈÛˆÔLËŒ\İ™X[HÛÜšËH›Ú™Xİš\ÈÔLËŒÈÛÛšX][ÛœÈ\™HXØÙ\Y[™\ˆHØ[YHXÙ[œÙK‚‚ˆÈÈXÙ[œÙB‚ŠŠ‘ÔLËŒ
-Šˆ8 %ÙYHÓPÑS”ÑWJPÑS”ÑJKˆÜ[ÛœÈ\š]™Yœ›ÛB–ÜÜš[™Ø›ÚËÓSL”“ËQÔÔ›ËPÛÛ›™XİÜ—JÎ‹ËÙÚ]X‹˜ÛÛKÜÜš[™Ø›ÚËÓSL”“ËQÔÔ›ËPÛÛ›™XİÜŠBŠÔLËŒ
-H[™Ñ]Ø^[™Y‹ÓSL”“ËP•PTJÎ‹ËÙÚ]X‹˜ÛÛKÑ]Ø^[™Y‹ÓSL”“ËP•PT
-BŠRU
-Kˆ[]šX][Ûˆ[ˆĞÔ‘QUË›YJÔ‘QUË›Y
-K‚
+Drops a hidden-launch shortcut in your per-user **Startup folder** (no admin). It
+prefers the built `.exe` if present, otherwise uses Python. Edit `$Club` in the
+script to change your default club. Remove with `scripts\uninstall_autostart.ps1`.
+
+**Check it's alive:** open `mlm2pro_bridge.log`.
+
+## How it works
+
+1. Connects to the MLM2PRO over BLE.
+2. Runs the auth handshake â†’ the device returns a user id.
+3. Fetches a session token from Rapsodo's web API for that id.
+4. Writes the encrypted initial parameters (incl. the token) and arms the device.
+5. Decodes each shot (AES-256-CBC) and sends it to GSPro OpenConnect.
+
+## Troubleshooting
+
+- **GSPro shows "not ready" but the connector is running** â€” GSPro's indicator
+  typically clears when it receives the first real shot. If the log shows
+  `202 GSPro ready`, the pipeline is connected; just hit a ball.
+- **Connector connects but no ball flies / no response on 921** â€” GSPro Connect is
+  single-connection and doesn't clean up old sockets. Quit and relaunch GSPro to
+  clear port 921, then start the connector **once** and leave it running. Don't
+  run two clients against 921 at the same time.
+- **Shot misreads** â€” 20 zero bytes from the device = a misread; it's ignored.
+
+## Contributing
+
+Issues and PRs welcome. Because this builds on GPL-3.0 upstream work, the project
+is GPL-3.0; contributions are accepted under the same license.
+
+## License
+
+**GPL-3.0** â€” see [LICENSE](LICENSE). Portions derived from
+[springbok/MLM2PRO-GSPro-Connector](https://github.com/springbok/MLM2PRO-GSPro-Connector)
+(GPL-3.0) and [Duwaynef/MLM2PRO-BT-APP](https://github.com/Duwaynef/MLM2PRO-BT-APP)
+(MIT). Full attribution in [CREDITS.md](CREDITS.md).
